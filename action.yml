@@ -19,7 +19,7 @@ inputs:
     description: 'Github token'
   dryRun:
     required: true
-    default: false
+    default: true
     description: 'The packages list te delete will be printed. Nothing will be deleted!'
 outputs:
   packageVersionId:
