@@ -1,11 +1,31 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Package Cleanup Action'
+description: 'This cleans up packages for GitHub based on provided inputs.'
 inputs:
-  milliseconds: # change this
+  packageOwner: # change this
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'Owner of the package'
+  packageName: # change this
+    required: true
+    description: 'Name of the package'
+  packageType: # change this
+    required: true
+    description: 'Type of the package (npm)'
+    default: 'npm'
+  packageVersionName: # change this
+    required: true
+    description: 'Name version of the package'
+  githubToken:
+    required: true
+    description: 'Github token'
+  dryRun:
+    required: true
+    default: false
+    description: 'The packages list te delete will be printed. Nothing will be deleted!'
+outputs:
+  packageVersionId:
+    description: 'The package version id'
+  packages:
+    description: 'The list of packages for this owner'
 runs:
   using: 'node16'
   main: 'dist/index.js'
