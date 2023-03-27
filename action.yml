@@ -20,7 +20,7 @@ inputs:
   dryRun:
     required: true
     default: true
-    description: 'The packages list te delete will be printed. Nothing will be deleted!'
+    description: 'List the packages to delete'
   milliseconds: # change this
     required: false
     description: 'input description here'
@@ -32,4 +32,4 @@ outputs:
     description: 'The list of packages for this owner'
 runs:
   using: 'node16'
-  main: 'dist/index.js'
+  main: 'index.js'
