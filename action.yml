@@ -21,6 +21,10 @@ inputs:
     required: true
     default: true
     description: 'The packages list te delete will be printed. Nothing will be deleted!'
+  milliseconds: # change this
+    required: false
+    description: 'input description here'
+    default: 500
 outputs:
   packageVersionId:
     description: 'The package version id'
