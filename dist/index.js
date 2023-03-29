@@ -51,24 +51,36 @@ function run() {
             const packageOwner = core.getInput('packageOwner');
             const packageName = core.getInput('packageName');
             const maxAgeDays = Number(core.getInput('maxAgeDays'));
-            const dryRun = core.getInput('packageName') === 'true';
+            const dryRun = core.getInput('dryRun').toLowerCase() === 'true';
             const deleteVersionRegex = new RegExp(core.getInput('deleteVersionRegex'));
             const packageType = core.getInput('packageType');
             core.debug(`packageOwner: ${packageOwner}`);
             core.debug(`packageName: ${packageName}`);
             core.debug(`packageType: ${packageType}`);
             core.info(`Matching regex ${deleteVersionRegex.toString()}`);
+            if (dryRun) {
+                core.info(`Running in dryRun mode not deleting any packages`);
+            }
             const packages = yield octokit.paginate(octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg, {
                 org: packageOwner,
                 package_type: packageType,
                 package_name: packageName
             }, response => {
                 return response.data
-                    .filter(v => deleteVersionRegex.test(v.name))
+                    .filter(v => {
+                    const matched = deleteVersionRegex.test(v.name);
+                    if (!matched) {
+                        core.info(`Version not matched by regex ${v.name}`);
+                    }
+                })
                     .filter(v => {
                     const difference = Math.abs(new Date(v.created_at).getTime() - new Date().getTime());
                     const daysOld = Math.ceil(difference / (1000 * 3600 * 24));
-                    return daysOld > maxAgeDays;
+                    const matched = daysOld > maxAgeDays;
+                    if (!matched) {
+                        core.info(`Version not matched by age ${v.name}`);
+                    }
+                    return matched;
                 })
                     .map(v => {
                     core.info(`Matched version ${v.name}`);

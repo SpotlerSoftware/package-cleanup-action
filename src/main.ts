@@ -20,7 +20,7 @@ async function run(): Promise<void> {
     core.debug(`packageType: ${packageType}`)
 
     core.info(`Matching regex ${deleteVersionRegex.toString()}`)
-    if(dryRun) {
+    if (dryRun) {
       core.info(`Running in dryRun mode not deleting any packages`)
     }
 
@@ -35,7 +35,7 @@ async function run(): Promise<void> {
         return response.data
           .filter(v => {
             const matched = deleteVersionRegex.test(v.name)
-            if(!matched) {
+            if (!matched) {
               core.info(`Version not matched by regex ${v.name}`)
             }
           })
@@ -44,8 +44,8 @@ async function run(): Promise<void> {
               new Date(v.created_at).getTime() - new Date().getTime()
             )
             const daysOld = Math.ceil(difference / (1000 * 3600 * 24))
-            const matched = daysOld > maxAgeDays;
-            if(!matched) {
+            const matched = daysOld > maxAgeDays
+            if (!matched) {
               core.info(`Version not matched by age ${v.name}`)
             }
             return matched
