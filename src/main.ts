@@ -10,7 +10,7 @@ async function run(): Promise<void> {
     const packageOwner: string = core.getInput('packageOwner')
     const packageName: string = core.getInput('packageName')
     const maxAgeDays = Number(core.getInput('maxAgeDays'))
-    const dryRun: boolean = core.getInput('packageName') === 'true'
+    const dryRun: boolean = !!core.getInput('packageName')
     const deleteVersionRegex = new RegExp(core.getInput('deleteVersionRegex'))
     const packageType: typeof octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg.prototype.package_type =
       core.getInput('packageType')
@@ -20,6 +20,9 @@ async function run(): Promise<void> {
     core.debug(`packageType: ${packageType}`)
 
     core.info(`Matching regex ${deleteVersionRegex.toString()}`)
+    if(dryRun) {
+      core.info(`Running in dryRun mode not deleting any packages`)
+    }
 
     const packages = await octokit.paginate(
       octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg,
