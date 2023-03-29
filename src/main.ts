@@ -1,14 +1,15 @@
-import * as core from '@actions/core';
-import { Octokit } from '@octokit/core';
-import { paginateRest } from '@octokit/plugin-paginate-rest';
-import { restEndpointMethods } from '@octokit/plugin-rest-endpoint-methods';
+import * as core from '@actions/core'
+import {Octokit} from '@octokit/core'
+import {paginateRest} from '@octokit/plugin-paginate-rest'
+import {restEndpointMethods} from '@octokit/plugin-rest-endpoint-methods'
 
 async function run(): Promise<void> {
   try {
-    const MyOctokit = Octokit.plugin(paginateRest, restEndpointMethods);
-    const octokit = new MyOctokit({auth: core.getInput('githubToken') })
+    const MyOctokit = Octokit.plugin(paginateRest, restEndpointMethods)
+    const octokit = new MyOctokit({auth: core.getInput('githubToken')})
     const packageOwner: string = core.getInput('packageOwner')
     const packageName: string = core.getInput('packageName')
+    const maxAgeDays = Number(core.getInput('maxAgeDays'))
     const dryRun: boolean = core.getInput('packageName') === 'true'
     const deleteVersionRegex: RegExp = new RegExp(
       core.getInput('deleteVersionRegex')
@@ -30,7 +31,15 @@ async function run(): Promise<void> {
       response => {
         return response.data
           .filter(v => deleteVersionRegex.test(v.name))
+          .filter(v => {
+            const difference = Math.abs(
+              new Date(v.created_at).getTime() - new Date().getTime()
+            )
+            const daysOld = Math.ceil(difference / (1000 * 3600 * 24))
+            return daysOld > maxAgeDays
+          })
           .map(v => {
+            core.info(`Matched version ${v.id} ${v.description}`)
             if (!dryRun) {
               octokit.rest.packages.deletePackageVersionForOrg({
                 org: packageOwner,

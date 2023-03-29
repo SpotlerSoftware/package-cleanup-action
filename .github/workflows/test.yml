@@ -27,9 +27,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./
-        id: get_package_version_id
         with:
           packageOwner: SpotlerSoftware
           packageName: spotler-library
           packageVersionName: 0.0.0-master-SNAPSHOT
           githubToken: ${{ secrets.SPOTLER_REPO_ACCESS_TOKEN }}
+          dryRun: true
