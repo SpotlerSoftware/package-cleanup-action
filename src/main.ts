@@ -11,15 +11,15 @@ async function run(): Promise<void> {
     const packageName: string = core.getInput('packageName')
     const maxAgeDays = Number(core.getInput('maxAgeDays'))
     const dryRun: boolean = core.getInput('packageName') === 'true'
-    const deleteVersionRegex: RegExp = new RegExp(
-      core.getInput('deleteVersionRegex')
-    ).compile()
+    const deleteVersionRegex = new RegExp(core.getInput('deleteVersionRegex'))
     const packageType: typeof octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg.prototype.package_type =
       core.getInput('packageType')
 
     core.debug(`packageOwner: ${packageOwner}`)
     core.debug(`packageName: ${packageName}`)
     core.debug(`packageType: ${packageType}`)
+
+    core.info(`Matching regex ${deleteVersionRegex.toString()}`)
 
     const packages = await octokit.paginate(
       octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg,
@@ -39,7 +39,7 @@ async function run(): Promise<void> {
             return daysOld > maxAgeDays
           })
           .map(v => {
-            core.info(`Matched version ${v.id} ${v.description}`)
+            core.info(`Matched version ${v.name}`)
             if (!dryRun) {
               octokit.rest.packages.deletePackageVersionForOrg({
                 org: packageOwner,
