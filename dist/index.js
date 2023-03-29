@@ -95,7 +95,12 @@ function run() {
                     return v.name;
                 });
             });
-            core.info(`Versions deleted ${packages.join(',')}`);
+            if (!packages.length) {
+                core.info(`No versions matched`);
+            }
+            else {
+                core.info(`Versions deleted ${packages.join(',')}`);
+            }
         }
         catch (error) {
             if (error instanceof Error)

@@ -14,6 +14,7 @@ inputs:
   deleteVersionRegex: # change this
     required: true
     description: 'Version regex to remove'
+    default: '.*SMA-.*'
   maxAgeDays:
     required: true
     description: 'Clean packages older than X days'
