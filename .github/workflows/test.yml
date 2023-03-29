@@ -30,6 +30,7 @@ jobs:
         with:
           packageOwner: SpotlerSoftware
           packageName: spotler-library
-          packageVersionName: 0.0.0-master-SNAPSHOT
+          deleteVersionRegex: '\\.*(SMA\\-)\\.*'
+          maxAgeDays: 14
           githubToken: ${{ secrets.SPOTLER_REPO_ACCESS_TOKEN }}
           dryRun: true
