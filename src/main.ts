@@ -10,7 +10,7 @@ async function run(): Promise<void> {
     const packageOwner: string = core.getInput('packageOwner')
     const packageName: string = core.getInput('packageName')
     const maxAgeDays = Number(core.getInput('maxAgeDays'))
-    const dryRun: boolean = !!core.getInput('dryRun')
+    const dryRun = core.getInput('dryRun').toLowerCase() === 'true'
     const deleteVersionRegex = new RegExp(core.getInput('deleteVersionRegex'))
     const packageType: typeof octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg.prototype.package_type =
       core.getInput('packageType')
@@ -44,7 +44,7 @@ async function run(): Promise<void> {
               new Date(v.created_at).getTime() - new Date().getTime()
             )
             const daysOld = Math.ceil(difference / (1000 * 3600 * 24))
-            let matched = daysOld > maxAgeDays;
+            const matched = daysOld > maxAgeDays;
             if(!matched) {
               core.info(`Version not matched by age ${v.name}`)
             }
