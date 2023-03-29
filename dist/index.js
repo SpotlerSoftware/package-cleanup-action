@@ -72,6 +72,7 @@ function run() {
                     if (!matched) {
                         core.info(`Version not matched by regex ${v.name}`);
                     }
+                    return matched;
                 })
                     .filter(v => {
                     const difference = Math.abs(new Date(v.created_at).getTime() - new Date().getTime());

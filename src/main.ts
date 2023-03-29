@@ -38,6 +38,7 @@ async function run(): Promise<void> {
             if (!matched) {
               core.info(`Version not matched by regex ${v.name}`)
             }
+            return matched
           })
           .filter(v => {
             const difference = Math.abs(
