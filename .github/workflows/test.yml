@@ -11,14 +11,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.20.0
+          cache: 'npm'
       - run: |
           npm install
       - run: |
           npm run all
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
+    permissions:
+      packages: read
     steps:
       - uses: actions/checkout@v2
       - uses: ./
+        id: get_package_version_id
         with:
-          milliseconds: 1000
+          packageOwner: SpotlerSoftware
+          packageName: spotler-library
+          packageVersionName: 0.0.0-master-SNAPSHOT
+          githubToken: ${{ secrets.SPOTLER_REPO_ACCESS_TOKEN }}
