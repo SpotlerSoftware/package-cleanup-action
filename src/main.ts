@@ -30,13 +30,22 @@ async function run(): Promise<void> {
       },
       response => {
         return response.data
-          .filter(v => deleteVersionRegex.test(v.name))
+          .filter(v => {
+            const matched = deleteVersionRegex.test(v.name)
+            if(!matched) {
+              core.info(`Version not matched by regex ${v.name}`)
+            }
+          })
           .filter(v => {
             const difference = Math.abs(
               new Date(v.created_at).getTime() - new Date().getTime()
             )
             const daysOld = Math.ceil(difference / (1000 * 3600 * 24))
-            return daysOld > maxAgeDays
+            let matched = daysOld > maxAgeDays;
+            if(!matched) {
+              core.info(`Version not matched by age ${v.name}`)
+            }
+            return matched
           })
           .map(v => {
             core.info(`Matched version ${v.name}`)
