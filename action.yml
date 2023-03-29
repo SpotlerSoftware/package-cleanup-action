@@ -11,25 +11,20 @@ inputs:
     required: true
     description: 'Type of the package (npm)'
     default: 'npm'
-  packageVersionName: # change this
+  deleteVersionRegex: # change this
     required: true
-    description: 'Name version of the package'
+    description: 'Version regex to remove'
+  maxAgeDays:
+    required: true
+    description: 'Clean packages older than X days'
+    default: 14
   githubToken:
     required: true
     description: 'Github token'
   dryRun:
     required: true
-    default: true
+    default: 'true'
     description: 'The packages list te delete will be printed. Nothing will be deleted!'
-  milliseconds: # change this
-    required: false
-    description: 'input description here'
-    default: 500
-outputs:
-  packageVersionId:
-    description: 'The package version id'
-  packages:
-    description: 'The list of packages for this owner'
 runs:
   using: 'node16'
   main: 'dist/index.js'
