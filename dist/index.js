@@ -61,46 +61,56 @@ function run() {
             if (dryRun) {
                 core.info(`Running in dryRun mode not deleting any packages`);
             }
+            const deleted = [];
             const packages = yield octokit.paginate(octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg, {
                 org: packageOwner,
                 package_type: packageType,
-                package_name: packageName
-            }, response => {
-                return response.data
-                    .filter(v => {
-                    const matched = deleteVersionRegex.test(v.name);
-                    if (!matched) {
-                        core.info(`Version not matched by regex ${v.name}`);
-                    }
-                    return matched;
-                })
-                    .filter(v => {
-                    const difference = Math.abs(new Date(v.created_at).getTime() - new Date().getTime());
-                    const daysOld = Math.ceil(difference / (1000 * 3600 * 24));
-                    const matched = daysOld > maxAgeDays;
-                    if (!matched) {
-                        core.info(`Version not matched by age ${v.name}`);
-                    }
-                    return matched;
-                })
-                    .map(v => {
-                    core.info(`Matched version ${v.name}`);
+                package_name: packageName,
+            });
+            const matchedPackages = packages
+                .filter((v) => {
+                if (isUntaggedContainer(v)) {
+                    core.info(`Untagged container ${v.name} will be deleted`);
+                    return true;
+                }
+                const name = getVersionName(v);
+                const matched = deleteVersionRegex.test(name);
+                if (!matched) {
+                    core.info(`Version not matched by regex ${name}`);
+                }
+                return matched;
+            })
+                .filter((v) => {
+                const difference = Math.abs(new Date(v.created_at).getTime() - new Date().getTime());
+                const daysOld = Math.ceil(difference / (1000 * 3600 * 24));
+                const matched = daysOld > maxAgeDays;
+                if (!matched) {
+                    core.info(`Version not matched by age ${v.name}`);
+                }
+                return matched;
+            });
+            matchedPackages.forEach((v) => {
+                core.info(`Matched version ${v.name}`);
+                try {
                     if (!dryRun) {
                         octokit.rest.packages.deletePackageVersionForOrg({
                             org: packageOwner,
                             package_type: packageType,
                             package_name: packageName,
-                            package_version_id: v.id
+                            package_version_id: v.id,
                         });
                     }
-                    return v.name;
-                });
+                    deleted.push(v.name);
+                }
+                catch (error) {
+                    core.warning(`Failed to delete version ${v.name}`);
+                }
             });
-            if (!packages.length) {
+            if (!deleted.length) {
                 core.info(`No versions matched`);
             }
             else {
-                core.info(`Versions deleted ${packages.join(',')}`);
+                core.info(`Versions deleted ${deleted.join(',')}`);
             }
         }
         catch (error) {
@@ -108,6 +118,18 @@ function run() {
                 core.setFailed(error.message);
         }
     });
+}
+function getVersionName(packageVersion) {
+    var _a, _b, _c;
+    return ((_a = packageVersion.metadata) === null || _a === void 0 ? void 0 : _a.container) &&
+        ((_c = (_b = packageVersion.metadata.container) === null || _b === void 0 ? void 0 : _b.tags) === null || _c === void 0 ? void 0 : _c.length) > 0
+        ? packageVersion.metadata.container.tags[0]
+        : packageVersion.name;
+}
+function isUntaggedContainer(packageVersion) {
+    var _a;
+    return (((_a = packageVersion.metadata) === null || _a === void 0 ? void 0 : _a.container) &&
+        packageVersion.metadata.container.tags.length === 0);
 }
 run();
 

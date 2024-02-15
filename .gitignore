@@ -97,3 +97,4 @@ lib/**/*
 
 # Ignore sonarlint files
 .idea/
+node_modules
